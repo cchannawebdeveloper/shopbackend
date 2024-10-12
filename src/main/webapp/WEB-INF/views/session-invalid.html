@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Session Invalid</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <h1>Session Invalid</h1>
+    <p th:text="${message}">Your session is invalid or has expired.</p>
+    <a th:href="@{/login}">Return to Login</a>
+</body>
+</html>

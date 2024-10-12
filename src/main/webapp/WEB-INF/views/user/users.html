@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+	<meta charset="UTF-8">
+	<title>Home - Shop Admin</title>
+	<link rel="stylesheet" type="text/css" th:href="@{/fontawesome/all.css}" />
+	<link rel="stylesheet" type="text/css" th:href="@{/style.css}" />
+	<link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
+	<script type="text/javascript" th:src="@{/webjars/jquery/jquery.min.js}"></script>
+	<script type="text/javascript" th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+</head>
+<body>
+
+<div class="container-fruid">
+	<h1>User Page22</h1>
+	
+	
+	<div>
+		<table class="table table-responsive-xl">
+			<thead class="thead-dark">
+				<tr>
+					<th>User Id</th>
+					<th>Photos</th>
+					<th>First Name</th>
+					<th>Last Name</th>
+					<th>Roles</th>
+					<th>Enabled</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="user : ${listUsers}">
+					<td>[[${user.id}]]</td>
+					<td>[[${user.photos}]]</td>
+					<td>[[${user.firstName}]]</td>
+					<td>[[${user.lastName}]]</td>
+					<td>[[${user.id}]]</td>
+					<td>[[${user.enabled}]]</td>
+					<td></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<div>
+		<p>Shop Control Panel - Copyright &copy; Shop</p>
+	</div>
+</div>
+</body>
+</html>
