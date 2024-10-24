@@ -19,21 +19,9 @@ public class UserController {
 	@GetMapping("/users")
 	public String listAll(Model model) {
 		List<User> listUsers = userService.listAll();
+		model.addAttribute("pageTitle","Users - Shop Admin");
 		model.addAttribute("listUsers", listUsers);
 		return "user/users";
 	}
-	
-	@GetMapping("/login")
-	public String login(Model model) {
-		List<User> listUsers = userService.listAll();
-		model.addAttribute("listUsers", listUsers);
-		return "login/login";
-	}
-	
-//	@PostMapping("/login")
-//	public String login() {
-//		System.out.println("log out work!!!!!!!!!!!");
-//		return "";
-//	}
 
 }

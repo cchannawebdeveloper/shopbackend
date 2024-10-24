@@ -6,13 +6,20 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
+import org.thymeleaf.extras.springsecurity6.dialect.SpringSecurityDialect;
+import org.thymeleaf.spring6.SpringTemplateEngine;
+import org.thymeleaf.spring6.templateresolver.SpringResourceTemplateResolver;
+import org.thymeleaf.templatemode.TemplateMode;
 
 @Configuration
+@EnableWebSecurity
 public class WebSecurityConfig {
 	
 	@Autowired
@@ -22,6 +29,18 @@ public class WebSecurityConfig {
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
+	
+	
+	// Used to publish session events like session creation, destruction
+    @Bean
+    public HttpSessionEventPublisher httpSessionEventPublisher() {
+        return new HttpSessionEventPublisher();
+    }
+    
+   @Bean
+    public SessionRegistry sessionRegistry() {
+        return new SessionRegistryImpl();
+    }
 	
 	
 	@Bean
@@ -34,14 +53,14 @@ public class WebSecurityConfig {
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		 http
-         .csrf(csrf -> csrf.disable())  // Disable CSRF protection
+        // .csrf(csrf -> csrf)  // Disable CSRF protection
          .authorizeHttpRequests( authorizeRequests -> authorizeRequests	
-        	.requestMatchers("/register","/session-expired","/session-invalid").permitAll()
+        	.requestMatchers("/session-expired","/register","/session-expired","/session-invalid").permitAll()
         	.requestMatchers("/users/**","/channa/**", "/settings/**", "/countries/**","/states/**").hasAuthority("Admin")
         	.requestMatchers("/countries/**","/states/**").hasAuthority("Sale")
 		 	//.requestMatchers("/users","/users/**", "/channa/**", "/settings/**", "/countries/**","/states/**").hasRole("Admin")
 		 	//.requestMatchers("/user/**").hasRole("USER")
-		 	.requestMatchers("/resources/**","/js/**","/webjars/**").permitAll()  // Allow access to login page and static resources
+		 	.requestMatchers("/images/**","/fontawesome/**","/css/**","/js/**","/webjars/**").permitAll()  // Allow access to login page and static resources
             .anyRequest().authenticated()
         )
          
@@ -54,45 +73,56 @@ public class WebSecurityConfig {
         		.permitAll()  // Allow everyone to see the login page
         )
         
-        .sessionManagement(
-       		 session -> session
-       		   .maximumSessions(1)
-       		 .maxSessionsPreventsLogin(true) // Prevents new logins if session limit is reached
-       		 .expiredUrl("/session-expired")
-       		 .sessionRegistry(sessionRegistry())
-       		  // Migrates the session on successful login
-       	// .invalidSessionUrl("/session-invalid")
-       )
-        
-     // Session fixation protection
-//        .sessionManagement(session -> session
-//            .sessionFixation().migrateSession()
-//        )
-        
-        
-        // Handle invalid sessions
-        .sessionManagement(session -> session
-            .invalidSessionUrl("/session-invalid")
-        )
         
         
         .logout(logout -> logout
-        		.logoutUrl("/logout")
-        		.logoutSuccessUrl("/login?logout=true")
-                .permitAll()
-         );
+        		 .logoutUrl("/logout")
+        		 .logoutSuccessUrl("/login?logout=true")
+        		 .invalidateHttpSession(true)
+                .permitAll())
+        
+        .sessionManagement(
+          		 session -> session
+          		 //.invalidSessionUrl("/login?sessionExpired=true")
+          		 .maximumSessions(1)
+          		 .maxSessionsPreventsLogin(true) // Prevents new logins if session limit is reached
+          		 .expiredUrl("/session-expired")
+          		 .sessionRegistry(sessionRegistry())
+          )
+        
+        
+        .rememberMe(
+        		rem -> rem
+        		.key("channa93444uttUYYY8tt")
+        		.tokenValiditySeconds(7 * 24 * 60 * 60))
+        
+        ;
 		return http.build();
 	}
 	
-	 @Bean
-	    public SessionRegistry sessionRegistry() {
-	        return new SessionRegistryImpl();
-	    }
 	 
-	// Used to publish session events like session creation, destruction
-//	    @Bean
-//	    public HttpSessionEventPublisher httpSessionEventPublisher() {
-//	        return new HttpSessionEventPublisher();
-//	    }
+	 
+	 
+	  @Bean
+	    public SpringResourceTemplateResolver templateResolver() {
+	        SpringResourceTemplateResolver templateResolver = new SpringResourceTemplateResolver();
+	        templateResolver.setPrefix("classpath:/templates/");
+	        templateResolver.setSuffix(".html");
+	        templateResolver.setTemplateMode(TemplateMode.HTML);
+	        templateResolver.setCharacterEncoding("UTF-8");
+	        templateResolver.setCacheable(false);  // For development, disable cache
+	        return templateResolver;
+	    }
+
+	    @Bean
+	    public SpringTemplateEngine templateEngine(SpringResourceTemplateResolver templateResolver) {
+	        SpringTemplateEngine templateEngine = new SpringTemplateEngine();
+	        templateEngine.setTemplateResolver(templateResolver);
+	        templateEngine.addDialect(new SpringSecurityDialect());
+	        return templateEngine;
+	    }
+	   
+	 
+	
 
 }

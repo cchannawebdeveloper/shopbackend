@@ -1,8 +1,6 @@
 # application.yml
-
 server:
-  port: 8001
-  
+  port: 8080
   servlet:
     context-path: /ShopAdmin
     session:
@@ -14,9 +12,8 @@ spring:
     
   datasource:
     url: jdbc:postgresql://localhost:5432/shop
-    username: Channa
-    password: Channa17
-    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: password
     hikari:
       maximum-pool-size: 10
       minimum-idle: 5
@@ -32,18 +29,3 @@ spring:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
-  
-  thymeleaf:
-    prefix: file:./src/main/webapp/WEB-INF/views/
-    suffix: .html
-    mode: HTML
-    encoding: UTF-8
-    enabled: true
-    cache: true
-  
-  
-  profiles:
-    active: dev
-   
-      
-      

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	  xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
+	  >
+<head th:replace="~{fragments :: page-head(${pageTitle},'none')}" />
+<body>
+
+<div class="container-fluid text-center">
+	<div><img th:src="@{/images/site-logo/ShopAdminSmall.png}">	
+	</div>
+	
+	<div th:if="${param.logout}"><p class="text-warning">You have been logged out successfully.</p>
+	</div>
+		
+		
+	<form th:action="@{/perform_login}" method="post" style="max-width: 350px; margin: 0 auto;" >
+	<div th:if="${param.error}">
+		<p class="text-danger">[[${session.SPRING_SECURITY_LAST_EXCEPTION.message}]]</p>
+	</div>
+	
+	<div th:if="${param.sessionExpired}"><p>Your session has expired. Please log in again.</p>
+	</div>
+		
+		
+		
+		<div class="border border-secondary rounded p-3">
+			<p>Access to Shop Control Panel</p>
+			<p><input type="email" name="email" value="cchannayoeurng@gmail.com" class="form-control" required="required" placeholder="E-mail"></p>
+			<p><input type="password" 
+					name="password" 
+					class="form-control" 
+					required="required" value="Channa17"
+					placeholder="Password">
+			</p>
+			<p><input type="checkbox" name="remember-me" />&nbsp; Remember me</p>
+			<p><input type="submit" value="Login" class="btn btn-primary"></p>
+		</div>
+	</form>
+	
+	<div th:replace="~{fragments :: footer}"></div>
+</div>
+
+</body>
+</html>

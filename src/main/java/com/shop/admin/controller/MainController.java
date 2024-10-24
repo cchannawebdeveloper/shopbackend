@@ -9,14 +9,8 @@ public class MainController {
 	
 	@GetMapping("")
     public String home(Model model) {
-        model.addAttribute("message", "Hello, Docker and Thymeleaf!");
+        model.addAttribute("pageTitle", "Home - Shop Admin");
         return "homepage/index";
     }
- 	
- 	@GetMapping("/user22")
- 	public String user() {
- 		return "user";
- 	}
-	
 
 }
