@@ -162,7 +162,7 @@ public class User {
 	
 	@Transient
 	public String getFullName() {
-		return firstName + " " + lastName;
+		return this.firstName + " " + lastName;
 	}
 	
 	public boolean hasRole(String roleName) {

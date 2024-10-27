@@ -4,7 +4,7 @@ server:
   servlet:
     context-path: /ShopAdmin
     session:
-      timeout: 1m
+      timeout: 5m
     
 spring:
   application:

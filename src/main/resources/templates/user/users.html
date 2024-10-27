@@ -4,6 +4,16 @@
 <body>
 
 <div class="container-fruid">
+	<div th:replace="~{navigation :: menu}"></div>
+	<div>
+		<h2>Manage Users</h2>
+		<a th:href="@{/users/new}" class="fas fa-user-plus fa-2x icon-dark mr-2"></a>
+		<a th:href="@{/users/export/csv}" class="fas fa-file-csv fa-2x icon-dark mr-2"></a>
+		<a th:href="@{/users/export/excel}" class="fas fa-file-excel fa-2x icon-dark mr-2"></a>
+		<a th:href="@{/users/export/pdf}" class="fas fa-file-pdf fa-2x icon-dark"></a>
+	</div>
+	
+	
 	<div>
 		<table class="table table-responsive-xl">
 			<thead class="thead-dark">
@@ -20,17 +30,27 @@
 			<tbody>
 				<tr th:each="user : ${listUsers}">
 					<td>[[${user.id}]]</td>
-					<td>[[${user.photos}]]</td>
+					<td>
+						<span th:if="${user.photos == null}" class="fas fa-portrait fa-3x icon-silver"></span>
+						<img th:if="${user.photos != null}" th:src="@{${user.photosImagePath}}" />
+					</td>
 					<td>[[${user.firstName}]]</td>
 					<td>[[${user.lastName}]]</td>
-					<td>[[${user.id}]]</td>
-					<td>[[${user.enabled}]]</td>
-					<td></td>
+					<td>[[${user.roles}]]</td>
+					<td>
+						<div th:replace="~{fragments :: status(${user.enabled}, 'user', '/users/'+ ${user.id})}"></div>
+					</td>
+					<td>
+						<div th:replace="~{fragments :: edit('user', '/users/edit/'+ ${user.id})}"></div>
+						<div th:replace="~{fragments :: delete('user', ${user.id},  '/users/delete/'+ ${user.id} , true)}"></div>
+					</td>
 				</tr>
 			</tbody>
 		</table>
 	</div>
 	<div th:replace="~{fragments :: footer}"></div>
 </div>
+<script type="text/javascript">
+</script>
 </body>
 </html>

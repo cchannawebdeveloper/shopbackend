@@ -3,6 +3,9 @@
 *.icon-green { color: green}
 *.icon-dark { color: dark}
 
+.dropdown:hover .dropdown-menu {
+      display: block;
+}
 
 @media screen and (max-width: 768px) {
 	/* smaill screen */

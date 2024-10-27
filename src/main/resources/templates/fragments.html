@@ -9,14 +9,40 @@
 <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}" />
 <script type="text/javascript" th:src="@{/webjars/jquery/jquery.min.js}"></script>
 <script type="text/javascript" th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
-<!-- <script type="text/javascript" th:src="@{/js/common.js}"></script> -->
+<script type="text/javascript" th:src="@{/js/common.js}"></script>
 </head>
 <body>
+	
+	<div th:fragment="status(enabled, entityName, entityURL)" th:remove="tag">
+		<a th:if="${enabled == true}"  class="fas fa-check-circle fa-2x icon-green" 
+			th:href="@{${entityURL} + '/enabled/false'}" 
+			th:title="'Disable this ' + ${entityName}"
+			></a>
+		
+		<a th:if="${enabled == false}"  class="fas fa-check-circle fa-2x icon-silver" 
+			th:href="@{${entityURL} + '/enabled/true'}" 
+			th:title="'Enable this ' + ${entityName}"></a>
+	</div>
+	
+	<div th:fragment="edit(entityName, editURL)" th:remove="tag">
+		<a class="fas fa-edit fa-2x icon-green" 
+			th:href="@{${editURL}}" 
+			th:title="'Edit this ' +  ${entityName}"></a>
+	</div>
+	
+	<div th:fragment="delete(entityName, entityId, deleteURL, visible)" th:remove="tag">
+		<th:block th:if="${visible}">
+			<a class="fas fa-trash fa-2x icon-silver link-delete" 
+				th:href="@{${deleteURL}}"
+				th:entityId="${entityId}"
+				th:title="'Delete this '+ ${entityName}"></a>
+		</th:block>
+	</div>
 
 
 
-<div th:fragment="footer" class="text-center m-3">
-	<p>Shop Control Panel - Copyright &copy; Shop</p>
-</div>
+	<div th:fragment="footer" class="text-center m-3">
+		<p>Shop Control Panel - Copyright &copy; Shop</p>
+	</div>
 </body>
 </html>

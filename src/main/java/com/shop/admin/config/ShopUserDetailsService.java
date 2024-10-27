@@ -18,8 +18,8 @@ public class ShopUserDetailsService implements UserDetailsService {
 	@Override
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 		User user = userRepo.getUserByEmail(email);
-		if(user != null ) {
-			return new ShopUserDetails(user);
+		if(user != null ) {	
+			 return new ShopUserDetails(user);
 		}
 		throw new UsernameNotFoundException("Could not find username with email: "+email);
 	}

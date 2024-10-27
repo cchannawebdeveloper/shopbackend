@@ -1,18 +1,25 @@
 package com.shop.admin.config;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configurers.userdetails.DaoAuthenticationConfigurer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.thymeleaf.extras.springsecurity6.dialect.SpringSecurityDialect;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 import org.thymeleaf.spring6.templateresolver.SpringResourceTemplateResolver;
@@ -21,46 +28,52 @@ import org.thymeleaf.templatemode.TemplateMode;
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig {
-	
+
 	@Autowired
 	private ShopUserDetailsService shopUserDetailsService;
+	
+	@Autowired
+    private ShopAuthenticationSuccessHandler successHandler;
 	
 	@Bean
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
-	
-	
-	// Used to publish session events like session creation, destruction
-    @Bean
-    public HttpSessionEventPublisher httpSessionEventPublisher() {
-        return new HttpSessionEventPublisher();
-    }
+
     
    @Bean
     public SessionRegistry sessionRegistry() {
         return new SessionRegistryImpl();
     }
 	
+   @Bean
+   public DaoAuthenticationProvider authenticationProvider() {
+	   DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+	   authProvider.setUserDetailsService(shopUserDetailsService);
+	   authProvider.setPasswordEncoder(passwordEncoder());
+	   return authProvider;
+	   
+   }
 	
-	@Bean
-    public AuthenticationManager authenticationManager(HttpSecurity http, PasswordEncoder passwordEncoder) throws Exception {
-		 AuthenticationManagerBuilder authBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
-		 authBuilder.userDetailsService(shopUserDetailsService).passwordEncoder(passwordEncoder);
-		 return authBuilder.build();
-    }
+//	@Bean
+//    public AuthenticationManager authenticationManager(HttpSecurity http, PasswordEncoder passwordEncoder) throws Exception {
+//			AuthenticationManagerBuilder authBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
+//			authBuilder.userDetailsService(shopUserDetailsService);
+//			return authBuilder.build();
+//    }
 	
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		 http
-        // .csrf(csrf -> csrf)  // Disable CSRF protection
-         .authorizeHttpRequests( authorizeRequests -> authorizeRequests	
-        	.requestMatchers("/session-expired","/register","/session-expired","/session-invalid").permitAll()
-        	.requestMatchers("/users/**","/channa/**", "/settings/**", "/countries/**","/states/**").hasAuthority("Admin")
-        	.requestMatchers("/countries/**","/states/**").hasAuthority("Sale")
+		 .authenticationProvider(authenticationProvider())
+        // .csrf(csrf -> csrf)  // Disable CSRF protection//For API need to disable
+         .authorizeHttpRequests( auth -> auth	
+        	//.requestMatchers("/session-expired","/register","/session-expired","/session-invalid").permitAll()
+        	//.requestMatchers("/users/**","/channa/**", "/settings/**", "/countries/**","/states/**").hasAuthority("Admin")
+        	//.requestMatchers("/countries/**","/states/**").hasAuthority("Sale")
 		 	//.requestMatchers("/users","/users/**", "/channa/**", "/settings/**", "/countries/**","/states/**").hasRole("Admin")
 		 	//.requestMatchers("/user/**").hasRole("USER")
-		 	.requestMatchers("/images/**","/fontawesome/**","/css/**","/js/**","/webjars/**").permitAll()  // Allow access to login page and static resources
+		 	//.requestMatchers("/js/**","/images/**","/fontawesome/**","/css/**","/js/**","/webjars/**").permitAll()  // Allow access to login page and static resources
             .anyRequest().authenticated()
         )
          
@@ -68,12 +81,22 @@ public class WebSecurityConfig {
         		.loginPage("/login") // Specify the custom login page
         		.usernameParameter("email")
         		.loginProcessingUrl("/perform_login")// URL that processes the login form
+        	//	.successHandler(successHandler)
         		.defaultSuccessUrl("/", true)  // Redirect after successful login
-        		.failureUrl("/login?error=true")  // Redirect after failed login
+        	//	.failureUrl("/login?error=true")  // Redirect after failed login
         		.permitAll()  // Allow everyone to see the login page
         )
         
-        
+        .sessionManagement(
+         		 (session) -> session
+         		 //.invalidSessionUrl("/login?sessionExpired=true")
+         		 .maximumSessions(1)
+         	//	 .ma
+         		// .maxSessionsPreventsLogin(false) // Prevents new logins if session limit is reached
+         		// .expiredUrl("/session-expired")
+         		// .expiredUrl("/login?expired=true")
+         	//	 .sessionRegistry(this.sessionRegistry())
+         )
         
         .logout(logout -> logout
         		 .logoutUrl("/logout")
@@ -81,14 +104,7 @@ public class WebSecurityConfig {
         		 .invalidateHttpSession(true)
                 .permitAll())
         
-        .sessionManagement(
-          		 session -> session
-          		 //.invalidSessionUrl("/login?sessionExpired=true")
-          		 .maximumSessions(1)
-          		 .maxSessionsPreventsLogin(true) // Prevents new logins if session limit is reached
-          		 .expiredUrl("/session-expired")
-          		 .sessionRegistry(sessionRegistry())
-          )
+        
         
         
         .rememberMe(
@@ -100,8 +116,17 @@ public class WebSecurityConfig {
 		return http.build();
 	}
 	
-	 
-	 
+	 @Bean
+	   public HttpSessionEventPublisher httpSessionEventPublisher() {
+	        return new HttpSessionEventPublisher();
+	    }
+	
+	@Bean
+	WebSecurityCustomizer configureWebSecurity() throws Exception {
+		return (web) -> web.ignoring().requestMatchers("/user-photos/**","/images/**","/fontawesome/**","/css/**", "/js/**", "/webjars/**");
+	}
+	
+	//addResourceHandlers
 	 
 	  @Bean
 	    public SpringResourceTemplateResolver templateResolver() {
@@ -122,6 +147,7 @@ public class WebSecurityConfig {
 	        return templateEngine;
 	    }
 	   
+	    
 	 
 	
 

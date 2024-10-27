@@ -78,6 +78,11 @@ public class ShopUserDetails implements UserDetails {
 		this.user.setLastName(lastName);
 	}
 	
+	public int getId() {
+		return this.user.getId();
+	}
+	
+	
 	public boolean hasRole(String roleName) {
 		return user.hasRole(roleName);
 	}
