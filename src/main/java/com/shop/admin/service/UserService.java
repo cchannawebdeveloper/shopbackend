@@ -1,6 +1,7 @@
 package com.shop.admin.service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import javax.security.sasl.AuthenticationException;
 
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.shop.admin.dao.RoleRepository;
 import com.shop.admin.dao.UserRepository;
 import com.shop.admin.dao.UserSessionRepository;
+import com.shop.admin.exception.UserNotFoundException;
 import com.shop.admin.model.Role;
 import com.shop.admin.model.User;
 import com.shop.admin.model.UserSession;
@@ -75,6 +77,24 @@ public class UserService {
 		return null;
 	}
 	
+	
+	public User get(Integer id) throws UserNotFoundException {
+			
+			try {
+			return userRepo.findById(id).get();
+			} catch (NoSuchElementException ex) {
+				throw new UserNotFoundException("Could not find any user");
+			}
+	}
+	
+	public void delete(Integer id) throws UserNotFoundException {
+		Long countById = userRepo.countById(id);
+		if(countById == null || countById == 0) {
+			throw new UserNotFoundException("Could not find any user "+ id);
+		}
+		userRepo.deleteById(id);
+		
+	}
 	
 	public User login(String username, String password) throws AuthenticationException {
         User user = userRepo.getUserByEmail(username);
