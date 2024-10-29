@@ -32,6 +32,8 @@ public class UserController {
 	
 	@GetMapping()
 	public String listAll(Model model) {
+		
+		System.out.println("redirect to list!!!!!!!!!!!");
 		List<User> listUsers = userService.listAll();
 		model.addAttribute("pageTitle","Users - Shop Admin");
 		model.addAttribute("listUsers", listUsers);
@@ -87,17 +89,36 @@ public class UserController {
 		}	
 	}
 	
-	@GetMapping("/users/delete/{id}")
+	@GetMapping("/delete/{id}")
 	public String deleteUser(@PathVariable(name = "id") Integer id
 			,RedirectAttributes rda) {
 		try {
-			userService.delete(id);
+			
+			System.out.println("delelet work!!!!!! userID"+id);
+			userService.delete(88);
+			System.out.println("");
 			rda.addFlashAttribute("message", "The user id "+ id + " has been deleted succesfully!");
 		} catch (UserNotFoundException ex) {
+			System.out.println("Error work!!!!!!!!!!!!!");
 			rda.addFlashAttribute("message", ex.getMessage());
 			
 		}
 		return "redirect:/users";	
+	}
+	
+	@GetMapping("/{id}/enabled/{status}")
+	public String updateUserEnableStatus(
+			  @PathVariable(name = "id") Integer id
+			, @PathVariable("status") boolean enabled
+			, Model md
+			, RedirectAttributes rda) throws UserNotFoundException {
+		
+		userService.updateUserStatus(id, enabled);
+		
+		String status = enabled ? "enabled" : "disable",
+		message = "The user id "+ id + " has been " + status;
+		rda.addFlashAttribute("message", message);
+		return "redirect:/users";
 	}
 
 }

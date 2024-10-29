@@ -5,6 +5,11 @@
 
 <div class="container-fruid">
 	<div th:replace="~{navigation :: menu}"></div>
+	
+	<div th:if="${message != null }" class="alert alert-success text-center">
+			[[${message}]]
+	</div>
+		
 	<div>
 		<h2>Manage Users</h2>
 		<a th:href="@{/users/new}" class="fas fa-user-plus fa-2x icon-dark mr-2"></a>
@@ -48,9 +53,23 @@
 			</tbody>
 		</table>
 	</div>
+	<div th:replace="~{fragments :: comfrim_model}"></div>
 	<div th:replace="~{fragments :: footer}"></div>
 </div>
+<script th:src="@{/js/common_list.js}"></script>
 <script type="text/javascript">
+
+
+$(document).ready(function() {
+	$(".link-delete").on("click",function(e) {
+		e.preventDefault();
+		showDeleteComfirmModel($(this),'user');
+	});
+	
+});
+	
+
+
 </script>
 </body>
 </html>

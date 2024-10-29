@@ -89,11 +89,20 @@ public class UserService {
 	
 	public void delete(Integer id) throws UserNotFoundException {
 		Long countById = userRepo.countById(id);
+		System.out.println("countById in servicer::"+countById);
 		if(countById == null || countById == 0) {
 			throw new UserNotFoundException("Could not find any user "+ id);
 		}
 		userRepo.deleteById(id);
 		
+	}
+	
+	public void updateUserStatus(Integer id, boolean status) throws UserNotFoundException {
+		Long countById = userRepo.countById(id);
+		if(countById == null || countById == 0 ) {
+			throw new UserNotFoundException("Could not find any user "+ id);
+		}
+		userRepo.updateEnableStatus(id, status);
 	}
 	
 	public User login(String username, String password) throws AuthenticationException {
