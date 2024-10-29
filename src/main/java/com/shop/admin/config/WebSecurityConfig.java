@@ -22,7 +22,7 @@ import org.thymeleaf.templatemode.TemplateMode;
 public class WebSecurityConfig {
 
 	@Autowired
-	private ShopUserDetailsService shopUserDetailsService;
+	private ShopUserDetailsService userDetailsService;
 	
 	@Autowired
     private ShopAuthenticationSuccessHandler successHandler;
@@ -41,7 +41,7 @@ public class WebSecurityConfig {
    @Bean
    public DaoAuthenticationProvider authenticationProvider() {
 	   DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-	   authProvider.setUserDetailsService(shopUserDetailsService);
+	   authProvider.setUserDetailsService(userDetailsService);
 	   authProvider.setPasswordEncoder(passwordEncoder());
 	   return authProvider;
 	   
@@ -62,7 +62,7 @@ public class WebSecurityConfig {
          .authorizeHttpRequests( auth -> auth	
         	//.requestMatchers("/session-expired","/register","/session-expired","/session-invalid").permitAll()
         		 
-        		 .requestMatchers("/user-photos/**","/images/**","/fontawesome/**","/css/**", "/js/**", "/webjars/**").permitAll()
+        	.requestMatchers("/user-photos/**","/images/**","/fontawesome/**","/css/**", "/js/**", "/webjars/**").permitAll()
         	//.requestMatchers("/users/**","/channa/**", "/settings/**", "/countries/**","/states/**").hasAuthority("Admin")
         	//.requestMatchers("/countries/**","/states/**").hasAuthority("Sale")
 		 	//.requestMatchers("/users","/users/**", "/channa/**", "/settings/**", "/countries/**","/states/**").hasRole("Admin")
@@ -75,8 +75,8 @@ public class WebSecurityConfig {
         		.loginPage("/login") // Specify the custom login page
         		.usernameParameter("email")
         		.loginProcessingUrl("/perform_login")// URL that processes the login form
-        	//	.successHandler(successHandler)
-        		.defaultSuccessUrl("/", true)  // Redirect after successful login
+        		.successHandler(successHandler)
+        	//	.defaultSuccessUrl("/", true)  // Redirect after successful login
         	//	.failureUrl("/login?error=true")  // Redirect after failed login
         		.permitAll()  // Allow everyone to see the login page
         )
@@ -103,7 +103,9 @@ public class WebSecurityConfig {
         .rememberMe(
         		rem -> rem
         		.key("channa93444uttUYYY8tt")
-        		.tokenValiditySeconds(7 * 24 * 60 * 60))
+        		.tokenValiditySeconds(7 * 24 * 60 * 60)
+        	//	.userDetailsService(userDetailsService)
+        		)
         
         ;
 		return http.build();

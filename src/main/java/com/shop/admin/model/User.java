@@ -1,6 +1,7 @@
 package com.shop.admin.model;
 
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -36,6 +37,9 @@ public class User {
 	
 	@Column(length = 64, nullable = false)
 	private String password;
+	
+	@Column(name = "last_login")
+    private LocalDateTime lastLogin; //Store last login time
 	
 	@Column(length = 64)
 	private String photos;
@@ -129,6 +133,16 @@ public class User {
 	
 	public void addRole(Role role) {
 		this.roles.add(role);
+	}
+	
+	
+
+	public LocalDateTime getLastLogin() {
+		return lastLogin;
+	}
+
+	public void setLastLogin(LocalDateTime lastLogin) {
+		this.lastLogin = lastLogin;
 	}
 
 	@Override
