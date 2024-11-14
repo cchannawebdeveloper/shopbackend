@@ -32,8 +32,6 @@ public class UserController {
 	
 	@GetMapping()
 	public String listAll(Model model) {
-		
-		System.out.println("redirect to list!!!!!!!!!!!");
 		List<User> listUsers = userService.listAll();
 		model.addAttribute("pageTitle","Users - Shop Admin");
 		model.addAttribute("listUsers", listUsers);
@@ -54,24 +52,26 @@ public class UserController {
 	@PostMapping("/save")
 	public String saveUser(
 			User user
-			, RedirectAttributes attributes
-			, @RequestParam("image") MultipartFile multipartFile
+			, RedirectAttributes ra
+			, @RequestParam("image") MultipartFile mpFile
 			) throws IOException {
-		
-		if(!multipartFile.isEmpty()) {
-			String fileName = StringUtils.cleanPath(multipartFile.getOriginalFilename());
+		if(!mpFile.isEmpty()) {
+			String fileName = StringUtils.cleanPath(mpFile.getOriginalFilename());
 			user.setPhotos(fileName);
 			User saveUser =  userService.saveUser(user);
 			String uploadDir = "user-photos/"+saveUser.getId();
-			FileUploadUtil.saveFile(uploadDir, fileName, multipartFile);
+			FileUploadUtil.saveFile(uploadDir, fileName, mpFile);
 		}
-		return "redirect:/user/users";
+		
+		ra.addFlashAttribute("message","The user has been saved successfully!");
+		return "redirect:/users";
 	}
 	
 	@GetMapping("/edit/{id}")
-	public String editUser(@PathVariable(name = "id") Integer id
-			,Model model
-			,RedirectAttributes attributes) {
+	public String editUser(
+			@PathVariable(name = "id") Integer id
+			, Model model
+			, RedirectAttributes attributes) {
 		try {
 			User user = userService.get(id);
 			List<Role> listRoles = userService.listRoles();
@@ -93,15 +93,10 @@ public class UserController {
 	public String deleteUser(@PathVariable(name = "id") Integer id
 			,RedirectAttributes rda) {
 		try {
-			
-			System.out.println("delelet work!!!!!! userID"+id);
 			userService.delete(88);
-			System.out.println("");
 			rda.addFlashAttribute("message", "The user id "+ id + " has been deleted succesfully!");
 		} catch (UserNotFoundException ex) {
-			System.out.println("Error work!!!!!!!!!!!!!");
 			rda.addFlashAttribute("message", ex.getMessage());
-			
 		}
 		return "redirect:/users";	
 	}
@@ -119,6 +114,11 @@ public class UserController {
 		message = "The user id "+ id + " has been " + status;
 		rda.addFlashAttribute("message", message);
 		return "redirect:/users";
+	}
+	
+	
+	public boolean checkEmail() {
+		return true;
 	}
 
 }

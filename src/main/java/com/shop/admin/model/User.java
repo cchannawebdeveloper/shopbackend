@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import com.shop.admin.audit.AuditModel;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -20,7 +22,7 @@ import jakarta.persistence.Transient;
 
 @Entity
 @Table(name = "users")
-public class User {
+public class User extends AuditModel {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

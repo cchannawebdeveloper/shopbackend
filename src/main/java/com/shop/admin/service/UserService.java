@@ -1,11 +1,13 @@
 package com.shop.admin.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 import javax.security.sasl.AuthenticationException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +21,7 @@ import com.shop.admin.model.UserSession;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import jakarta.transaction.Transactional;
 
 @Service
 public class UserService {
@@ -37,6 +40,9 @@ public class UserService {
 	
 	@Autowired
 	private UserRepository userRepo;
+	
+	@Autowired
+    private AuditorAware<String> auditorAware;
 	
 	public List<User> listAll() {
 		return (List<User>) userRepo.findAll();
@@ -74,7 +80,24 @@ public class UserService {
 	}
 	
 	public User saveUser(User user) {
-		return null;
+		
+		boolean isUpdatingUser = (user.getId() != null);
+		
+		System.out.println("Save user in service::"+isUpdatingUser);
+		if(isUpdatingUser) {
+			User existingUser = userRepo.findById(user.getId()).get();
+			
+			if(user.getPassword().isEmpty()) user.setPassword(existingUser.getPassword());
+			else encodePassword(user);
+			
+		}
+		else 
+		{
+			encodePassword(user);
+		}
+		
+		
+		return userRepo.save(user);
 	}
 	
 	
@@ -89,7 +112,6 @@ public class UserService {
 	
 	public void delete(Integer id) throws UserNotFoundException {
 		Long countById = userRepo.countById(id);
-		System.out.println("countById in servicer::"+countById);
 		if(countById == null || countById == 0) {
 			throw new UserNotFoundException("Could not find any user "+ id);
 		}
@@ -97,12 +119,21 @@ public class UserService {
 		
 	}
 	
+	public boolean isEmailUnique(String email) {
+		User userByEmail = userRepo.getUserByEmail(email);
+		return userByEmail == null;
+	}
+	
+	@Transactional
 	public void updateUserStatus(Integer id, boolean status) throws UserNotFoundException {
 		Long countById = userRepo.countById(id);
 		if(countById == null || countById == 0 ) {
 			throw new UserNotFoundException("Could not find any user "+ id);
 		}
-		userRepo.updateEnableStatus(id, status);
+		LocalDateTime now = LocalDateTime.now();
+		String currentAuditor = auditorAware.getCurrentAuditor().orElse("system");
+		 
+		userRepo.updateEnableStatus(id, status,currentAuditor,now);
 	}
 	
 	public User login(String username, String password) throws AuthenticationException {
